@@ -11,6 +11,7 @@ class CreateUserController {
 
         try {
             const user = await createUserService.execute({ name, email, password });
+            console.log('User created:', user);
             return res.status(201).json({
                 message: 'User created successfully!',
                 user: user
