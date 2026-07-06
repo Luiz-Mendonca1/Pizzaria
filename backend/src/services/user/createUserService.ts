@@ -37,6 +37,13 @@ class CreateUserService {
                 name,
                 email,
                 password: passwordHash
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                created_at: true,
             }
         });
         return user;
