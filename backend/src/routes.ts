@@ -10,6 +10,6 @@ const createUserController = new CreateUserController();
 router.post('/users', validateSchema(createUserSchema), (req, res) => createUserController.handle(req, res));
 
 const authUserController = new AuthUserController();
-router.post('/sessions', validateSchema(authUserSchema), (req, res) => authUserController.handle(req, res));
+router.post('/session', validateSchema(authUserSchema), (req, res) => authUserController.handle(req, res));
 
 export default router;
