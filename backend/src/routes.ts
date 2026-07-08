@@ -1,9 +1,10 @@
 import {Router} from 'express';
-import {CreateUserController} from './controllers/user/createUserController';
+import {CreateUserController} from './controllers/user/CreateUserController';
 import { authUserSchema, createUserSchema } from './schemas/userSchema';
 import { validateSchema } from './middlewares/validateSchema';
 import { AuthUserController } from './controllers/user/AuthUserController';
 import { DetailUserController } from './controllers/user/DetailUserController';
+import { isAuthenticated } from './middlewares/isAuthenticated';
 
 const router = Router();
 
@@ -14,6 +15,6 @@ const authUserController = new AuthUserController();
 router.post('/session', validateSchema(authUserSchema), (req, res) => authUserController.handle(req, res));
 
 const detailUserController = new DetailUserController();
-router.get('/me', (req, res) => detailUserController.handle(req, res));
+router.get('/me', isAuthenticated, (req, res) => detailUserController.handle(req, res));
 
 export default router;
