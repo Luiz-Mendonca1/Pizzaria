@@ -5,6 +5,7 @@ import { validateSchema } from './middlewares/validateSchema';
 import { AuthUserController } from './controllers/user/AuthUserController';
 import { DetailUserController } from './controllers/user/DetailUserController';
 import { isAuthenticated } from './middlewares/isAuthenticated';
+import { CreateCategoryController } from './controllers/category/CreateCategoryController';
 
 const router = Router();
 
@@ -16,5 +17,8 @@ router.post('/session', validateSchema(authUserSchema), (req, res) => authUserCo
 
 const detailUserController = new DetailUserController();
 router.get('/me', isAuthenticated, (req, res) => detailUserController.handle(req, res));
+
+const createCategoryController = new CreateCategoryController();
+router.post('/category', isAuthenticated, (req, res) => createCategoryController.handle(req, res));
 
 export default router;
