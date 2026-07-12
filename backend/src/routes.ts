@@ -8,9 +8,12 @@ import { isAuthenticated } from './middlewares/isAuthenticated';
 import { CreateCategoryController } from './controllers/category/CreateCategoryController';
 import { isAdmin } from './middlewares/isAdmin';
 import { createCategorySchema } from './schemas/categorySchema';
+import { ListCategoryController } from './controllers/category/ListCategoryController';
+import { CreateProductController } from './controllers/product/CreateProductController';
 
 const router = Router();
 
+// rotas user
 const createUserController = new CreateUserController();
 router.post('/users', validateSchema(createUserSchema), (req, res) => createUserController.handle(req, res));
 
@@ -20,7 +23,15 @@ router.post('/session', validateSchema(authUserSchema), (req, res) => authUserCo
 const detailUserController = new DetailUserController();
 router.get('/me', isAuthenticated, (req, res) => detailUserController.handle(req, res));
 
+// rotas category
 const createCategoryController = new CreateCategoryController();
 router.post('/category', isAuthenticated, isAdmin, validateSchema(createCategorySchema), (req, res) => createCategoryController.handle(req, res));
+
+const listCategoryController = new ListCategoryController();
+router.get('/category', isAuthenticated, (req, res) => listCategoryController.handle(req, res));
+
+// rotas product
+const createProductController = new CreateProductController();
+router.post('/product', isAuthenticated, isAdmin, (req, res) => createProductController.handle(req, res));
 
 export default router;
