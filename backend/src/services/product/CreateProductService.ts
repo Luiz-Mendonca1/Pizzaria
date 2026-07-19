@@ -2,17 +2,17 @@ import prismaClient from "../../prisma";
 import cloudinary from "../../config/cloudinary";
 import {Readable} from "stream";
 
-interface CreateProcuctServiceProps {
+interface CreateProductServiceProps {
     name: string;
     description: string;
     price: number;
     category_id: string;
-    imageBuffer: string; 
+    imageBuffer: Buffer;
     imageName: string;
 }
 
 class CreateProductService {
-    async execute({ name, description, price, category_id, imageBuffer, imageName }: CreateProcuctServiceProps) {
+    async execute({ name, description, price, category_id, imageBuffer, imageName }: CreateProductServiceProps) {
         // Implementation for creating a product
 
         const categoryExists = await prismaClient.category.findFirst({
@@ -25,17 +25,18 @@ class CreateProductService {
             throw new Error('Category not found');
         }
 
-        //envia para o cloudinary a img pega url
+        // envia para o cloudinary e pega url
         let bannerUrl = '';
 
         try {
-            const result = await new Promise((resolve, reject) => {
+            const result = await new Promise<any>((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: 'products',
+                    {
+                        folder: 'products',
                         resource_type: 'image',
                         public_id: `${Date.now()}_${imageName.split('.')[0]}`,
-                     },
-                    (error, result) => {
+                    },
+                    (error: any, result: any) => {
                         if (error) {
                             reject(error);
                         } else {
@@ -44,11 +45,30 @@ class CreateProductService {
                     }
                 );
 
+                const bufferStream = Readable.from(imageBuffer);
+                bufferStream.pipe(uploadStream);
+            });
 
-        //salva a url e dados no banco de dados
+            console.log(result);
+            bannerUrl = result?.secure_url || result?.url || '';
 
-        return { message: 'Product created successfully' };
+            const product = await prismaClient.product.create({
+                data: {
+                    name,
+                    description,
+                    price,
+                    banner: bannerUrl,
+                    category: { connect: { id: category_id } },
+                },
+            });
+
+            return product;
+        } catch (error) {
+            console.error('Error uploading image to Cloudinary:', error);
+            throw new Error('Failed to upload image');
+        }
     }
+
 }
 
 export { CreateProductService };

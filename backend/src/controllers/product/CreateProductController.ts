@@ -14,8 +14,22 @@ class CreateProductController {
         console.log("===============================")
         const createProduct = new CreateProductService();
 
-        const product = await createProduct.execute();
-        res.status(201).json(product);
+        try {
+            const file = req.file as Express.Multer.File & { buffer: Buffer };
+            const product = await createProduct.execute({
+                name,
+                description,
+                price: Number(price),
+                category_id,
+                imageBuffer: file.buffer,
+                imageName: file.originalname,
+            });
+
+            res.status(201).json(product);
+        } catch (error: any) {
+            console.error('Error creating product:', error);
+            res.status(500).json({ error: error.message || 'Internal server error' });
+        }
     }
 }
 
